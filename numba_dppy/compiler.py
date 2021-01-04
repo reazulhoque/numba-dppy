@@ -203,7 +203,7 @@ def compile_dppy_func(pyfunc, return_type, args, debug=False):
 # Compile dppy function template
 def compile_dppy_func_template(pyfunc):
     """Compile a DPPYFunctionTemplate"""
-    from .descriptor import dppy_target
+    from .target import dppy_typing_context
 
     dft = DPPYFunctionTemplate(pyfunc)
 
@@ -214,7 +214,7 @@ def compile_dppy_func_template(pyfunc):
             assert not kws
             return dft.compile(args)
 
-    typingctx = dppy_target.typing_context
+    typingctx = dppy_typing_context
     typingctx.insert_user_function(dft, dppy_function_template)
     return dft
 
@@ -564,7 +564,6 @@ class JitDPPYKernel(DPPYKernelBase):
         # we were previously using the _env_ptr of the device_env, the sycl_queue
         # should be sufficient to cache the compiled kernel for now, but we should
         # use the device type to cache such kernels
-        # key_definitions = (self.sycl_queue, argtypes)
         key_definitions = argtypes
         result = self.definitions.get(key_definitions)
         if result:

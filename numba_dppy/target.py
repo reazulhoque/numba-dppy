@@ -23,7 +23,6 @@ CC_SPIR_FUNC = "spir_func"
 # -----------------------------------------------------------------------------
 # Typing
 
-
 class DPPYTypingContext(typing.BaseContext):
     def load_additional_registries(self):
         # Declarations for OpenCL API functions and OpenCL Math functions
@@ -34,6 +33,8 @@ class DPPYTypingContext(typing.BaseContext):
         self.install_registry(mathdecl.registry)
         self.install_registry(cmathdecl.registry)
         self.install_registry(npydecl.registry)
+
+dppy_typing_context = DPPYTypingContext()
 
 
 # -----------------------------------------------------------------------------

@@ -3,15 +3,13 @@ from numba.core.descriptors import TargetDescriptor
 from numba.core.options import TargetOptions
 
 from numba.core import dispatcher, utils, typing
-from .target import DPPYTargetContext, DPPYTypingContext
+from .target import DPPYTargetContext, dppy_typing_context
 
 from numba.core.cpu import CPUTargetOptions
 
 
 class DPPYTarget(TargetDescriptor):
     options = CPUTargetOptions
-    # typingctx = DPPYTypingContext()
-    # targetctx = DPPYTargetContext(typingctx)
 
     @utils.cached_property
     def _toplevel_target_context(self):
@@ -21,7 +19,7 @@ class DPPYTarget(TargetDescriptor):
     @utils.cached_property
     def _toplevel_typing_context(self):
         # Lazily-initialized top-level typing context, for all threads
-        return DPPYTypingContext()
+        return dppy_typing_context
 
     @property
     def target_context(self):
