@@ -39,6 +39,9 @@ CC_SPIR_FUNC = "spir_func"
 
 
 class DPPYTypingContext(typing.BaseContext):
+    def init(self):
+        self.cpu_context = cpu_target.target_context.typing_context
+
     def load_additional_registries(self):
         # Declarations for OpenCL API functions and OpenCL Math functions
         from .ocl import ocldecl, mathdecl
@@ -234,6 +237,7 @@ class DPPYTargetContext(BaseContext):
 
         argtys = list(arginfo.argument_types)
         fnty = lc.Type.function(
+            #lc.Type.int(), [self.call_conv.get_return_type(types.pyobject)] + argtys
             lc.Type.int(), [self.call_conv.get_return_type(types.pyobject)] + argtys
         )
 
@@ -283,8 +287,9 @@ class DPPYTargetContext(BaseContext):
         ret = super(DPPYTargetContext, self).declare_function(module, fndesc)
 
         # XXX: Refactor fndesc instead of this special case
-        if fndesc.llvm_func_name.startswith("dppy_py_devfn"):
-            ret.calling_convention = CC_SPIR_FUNC
+        #if fndesc.llvm_func_name.startswith("dppy_py_devfn"):
+        #    ret.calling_convention = CC_SPIR_FUNC
+        ret.calling_convention = CC_SPIR_FUNC
         return ret
 
     def make_constant_array(self, builder, typ, ary):
@@ -465,3 +470,21 @@ class DPPYCallConv(MinimalCallConv):
         retval = builder.load(retvaltmp)
         out = self.context.get_returned_value(builder, resty, retval)
         return status, out
+
+
+    def get_function_type(self, restype, argtypes):
+        """
+        Get the implemented Function type for *restype* and *argtypes*.
+        """
+        arginfo = self._get_arg_packer(argtypes)
+        argtypes = list(arginfo.argument_types)
+        resptr = self.get_return_type(restype)
+        fnty = llvmir.FunctionType(llvmir.VoidType(), [resptr] + argtypes)
+        return fnty
+
+    def return_value(self, builder, retval):
+        retptr = builder.function.args[0]
+        assert retval.type == retptr.type.pointee, \
+            (str(retval.type), str(retptr.type.pointee))
+        builder.store(retval, retptr)
+        builder.ret_void()
