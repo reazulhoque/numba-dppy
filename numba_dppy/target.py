@@ -90,6 +90,7 @@ def _init_data_model_manager():
     dmm = datamodel.default_manager.copy()
     dmm.register(types.CPointer, GenericPointerModel)
     dmm.register(DPPYArray, DPPYArrayModel)
+    dmm.register(types.Array, DPPYArrayModel)
     return dmm
 
 

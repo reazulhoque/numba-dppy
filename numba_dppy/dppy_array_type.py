@@ -2,6 +2,7 @@ from numba.core.types.npytypes import Array
 from numba.core import types
 from numba.core.datamodel.models import StructModel
 import numpy as np
+from llvmlite import ir
 
 class DPPYArray(Array):
     """
@@ -50,5 +51,17 @@ class DPPYArrayModel(StructModel):
 
         ]
         super(DPPYArrayModel, self).__init__(dmm, fe_type, members)
+
+
+    def from_argument(self, builder, value):
+        print("Calling our from argument")
+        methname = "from_argument"
+        struct = ir.Constant(self.get_value_type(), ir.Undefined)
+
+        for i, (dm, val) in enumerate(zip(self._models, value)):
+            v = getattr(dm, methname)(builder, val)
+            struct = self.set(builder, struct, v, i)
+
+        return struct
 
 
