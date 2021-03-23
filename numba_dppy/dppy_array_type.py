@@ -12,6 +12,7 @@ class DPPYArray(Array):
     def __init__(self, dtype, ndim, layout, py_type=np.ndarray, readonly=False, name=None,
                  aligned=True, addrspace=None):
         self.addrspace = addrspace
+        name = "%s(%s, %sd, %s)" % ("DPPYarray", dtype, ndim, layout)
         super(DPPYArray, self).__init__(dtype, ndim, layout, py_type=py_type,
               readonly=readonly, name=name, aligned=aligned)
 
@@ -40,12 +41,16 @@ class DPPYArray(Array):
 class DPPYArrayModel(StructModel):
     def __init__(self, dmm, fe_type):
         ndim = fe_type.ndim
+        if hasattr(fe_type, "addrspace"):
+            fe_type_addrspace = fe_type.addrspace
+        else:
+            fe_type_addrspace = None
         members = [
             ('meminfo', types.MemInfoPointer(fe_type.dtype)),
             ('parent', types.pyobject),
             ('nitems', types.intp),
             ('itemsize', types.intp),
-            ('data', types.CPointer(fe_type.dtype, addrspace=fe_type.addrspace)),
+            ('data', types.CPointer(fe_type.dtype, addrspace=fe_type_addrspace)),
             ('shape', types.UniTuple(types.intp, ndim)),
             ('strides', types.UniTuple(types.intp, ndim)),
 
