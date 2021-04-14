@@ -26,6 +26,7 @@ from numba.core.utils import cached_property
 from numba.core import datamodel
 from numba.core.base import BaseContext
 from numba.core.registry import cpu_target
+from numba.core.cpu import CPUContext
 from numba.core.callconv import MinimalCallConv
 from . import codegen
 
@@ -90,6 +91,19 @@ def _init_data_model_manager():
 
 spirv_data_model_manager = _init_data_model_manager()
 
+
+class DPPYCpuTargetContext(CPUContext):
+    def load_additional_registries(self):
+        orig_cpu_target = cpu_target.target_context
+
+        super(DPPYCpuTargetContext, self).load_additional_registries()
+
+        # copy all the register_jittable and overloads
+        #print("called LLLL")
+        #for func in orig_cpu_target._defns:
+        #    if func not in self._defns:
+        #        print("copied something", func)
+        #        self._defns[func] = orig_cpu_target._defns[func]
 
 class DPPYTargetContext(BaseContext):
     implement_powi_as_math_call = True

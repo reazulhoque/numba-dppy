@@ -15,10 +15,10 @@
 from numba.core import dispatcher, compiler
 from numba.core.registry import cpu_target, dispatcher_registry
 import numba_dppy.config as dppy_config
-
+from numba_dppy.descriptor import dppy_cpu_target
 
 class DppyOffloadDispatcher(dispatcher.Dispatcher):
-    targetdescr = cpu_target
+    targetdescr = dppy_cpu_target
 
     def __init__(
         self,
