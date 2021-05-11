@@ -25,7 +25,7 @@ def init_jit():
 
 
 def initialize_all():
-    from numba.core.registry import dispatcher_registry
+    from numba.core.extending_hardware import dispatcher_registry
 
     dispatcher_registry.ondemand["dppy"] = init_jit
 
