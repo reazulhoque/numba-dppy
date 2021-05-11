@@ -189,6 +189,7 @@ class DPPYPreParforPass(FunctionPass):
             state.type_annotation.typemap,
             state.type_annotation.calltypes,
             state.typingctx,
+            state.targetctx,
             state.flags.auto_parallel,
             state.parfor_diagnostics.replaced_fns,
             replace_functions_map=functions_map,
@@ -224,8 +225,10 @@ class DPPYParforPass(FunctionPass):
             state.type_annotation.calltypes,
             state.return_type,
             state.typingctx,
+            state.targetctx,
             state.flags.auto_parallel,
             state.flags,
+            state.metadata,
             state.parfor_diagnostics,
         )
 
