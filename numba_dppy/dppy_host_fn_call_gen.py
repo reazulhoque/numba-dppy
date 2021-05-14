@@ -89,7 +89,7 @@ class DPPYHostFunctionCallsGenerator(object):
 
     def _declare_functions(self):
         get_queue_fnty = lc.Type.function(self.void_ptr_t, ())
-        self.get_queue = self.builder.module.get_or_insert_function(
+        self.get_queue = cgutils.get_or_insert_function(self.builder.module,
             get_queue_fnty, name="DPCTLQueueMgr_GetCurrentQueue"
         )
 
@@ -107,7 +107,7 @@ class DPPYHostFunctionCallsGenerator(object):
                 self.intp_t,
             ],
         )
-        self.submit_range = self.builder.module.get_or_insert_function(
+        self.submit_range = cgutils.get_or_insert_function(self.builder.module,
             submit_range_fnty, name="DPCTLQueue_SubmitRange"
         )
 
@@ -115,26 +115,26 @@ class DPPYHostFunctionCallsGenerator(object):
             lir.VoidType(),
             [self.void_ptr_t, self.void_ptr_t, self.void_ptr_t, self.intp_t],
         )
-        self.queue_memcpy = self.builder.module.get_or_insert_function(
+        self.queue_memcpy = cgutils.get_or_insert_function(self.builder.module,
             queue_memcpy_fnty, name="DPCTLQueue_Memcpy"
         )
 
         queue_wait_fnty = lc.Type.function(lir.VoidType(), [self.void_ptr_t])
-        self.queue_wait = self.builder.module.get_or_insert_function(
+        self.queue_wait = cgutils.get_or_insert_function(self.builder.module,
             queue_wait_fnty, name="DPCTLQueue_Wait"
         )
 
         usm_shared_fnty = lc.Type.function(
             self.void_ptr_t, [self.intp_t, self.void_ptr_t]
         )
-        self.usm_shared = self.builder.module.get_or_insert_function(
+        self.usm_shared = cgutils.get_or_insert_function(self.builder.module,
             usm_shared_fnty, name="DPCTLmalloc_shared"
         )
 
         usm_free_fnty = lc.Type.function(
             lir.VoidType(), [self.void_ptr_t, self.void_ptr_t]
         )
-        self.usm_free = self.builder.module.get_or_insert_function(
+        self.usm_free = cgutils.get_or_insert_function(self.builder.module,
             usm_free_fnty, name="DPCTLfree_with_queue"
         )
 

@@ -114,7 +114,8 @@ class DPPYTargetContext(BaseContext):
             codegen.SPIR_DATA_LAYOUT[utils.MACHINE_BITS]
         )
         # Override data model manager to SPIR model
-        self.data_model_manager = spirv_data_model_manager
+        import numba.cpython.unicode
+        self.data_model_manager = _init_data_model_manager()
         self.link_binaries = dict()
 
         from numba.np.ufunc_db import _lazy_init_db

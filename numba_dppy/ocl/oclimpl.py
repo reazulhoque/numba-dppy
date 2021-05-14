@@ -71,7 +71,7 @@ def _declare_function(context, builder, name, sig, cargs, mangler=mangle_c):
     llargs = [context.get_value_type(t) for t in sig.args]
     fnty = Type.function(llretty, llargs)
     mangled = mangler(name, cargs)
-    fn = mod.get_or_insert_function(fnty, mangled)
+    fn = cgutils.get_or_insert_function(mod, fnty, mangled)
     fn.calling_convention = target.CC_SPIR_FUNC
     return fn
 
@@ -253,7 +253,7 @@ def insert_and_call_atomic_fn(
     llargs = [ll_p, context.get_value_type(sig.args[2])]
     fnty = ir.FunctionType(llretty, llargs)
 
-    fn = mod.get_or_insert_function(fnty, name)
+    fn = cgutils.get_or_insert_function(mod, fnty, name)
     fn.calling_convention = target.CC_SPIR_FUNC
 
     generic_ptr = context.addrspacecast(builder, ptr, target.SPIR_GENERIC_ADDRSPACE)
