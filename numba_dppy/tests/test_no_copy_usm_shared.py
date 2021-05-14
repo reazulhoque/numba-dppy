@@ -38,10 +38,10 @@ def test_no_copy_usm_shared(capfd):
     f = njit(fn)
 
     flags = compiler.Flags()
-    flags.set("no_compile")
-    flags.set("no_cpython_wrapper")
-    flags.set("auto_parallel", cpu.ParallelOptions(True))
-    flags.unset("nrt")
+    flags.no_compile = True
+    flags.no_cpython_wrapper = True
+    flags.auto_parallel = cpu.ParallelOptions(True)
+    flags.nrt = False
 
     typingctx = cpu_target.typing_context
     targetctx = cpu_target.target_context

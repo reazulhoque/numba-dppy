@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from numba.core import registry, serialize, dispatcher
+from numba.core import serialize, dispatcher
+from numba.core.extending_hardware import dispatcher_registry, hardware_registry
 from numba import types
 from numba.core.errors import UnsupportedError
 import dpctl
 from numba.core.compiler_lock import global_compiler_lock
+from numba_dppy import dppy_offload_dispatcher
 
 
 class TargetDispatcher(serialize.ReduceMixin, metaclass=dispatcher.DispatcherMeta):
@@ -67,7 +69,7 @@ class TargetDispatcher(serialize.ReduceMixin, metaclass=dispatcher.DispatcherMet
         return self.__compiled[disp]
 
     def __is_with_context_target(self, target):
-        return target is None or target == TargetDispatcher.target_dppy
+        return target is "cpu" or target == TargetDispatcher.target_dppy
 
     def get_current_disp(self):
         target = self.__target
@@ -86,34 +88,17 @@ class TargetDispatcher(serialize.ReduceMixin, metaclass=dispatcher.DispatcherMet
                     f"Can't use 'with' context with parallel option '{parallel}'"
                 )
 
-            from numba_dppy import dppy_offload_dispatcher
 
-            if target is None:
-                if dpctl.get_current_device_type() == dpctl.device_type.gpu:
-                    return registry.dispatcher_registry[
-                        TargetDispatcher.target_offload_gpu
-                    ]
-                elif dpctl.get_current_device_type() == dpctl.device_type.cpu:
-                    return registry.dispatcher_registry[
-                        TargetDispatcher.target_offload_cpu
-                    ]
-                else:
-                    if dpctl.is_in_device_context():
-                        raise UnsupportedError("Unknown dppy device type")
-                    if offload:
-                        if dpctl.has_gpu_queues():
-                            return registry.dispatcher_registry[
-                                TargetDispatcher.target_offload_gpu
-                            ]
-                        elif dpctl.has_cpu_queues():
-                            return registry.dispatcher_registry[
-                                TargetDispatcher.target_offload_cpu
-                            ]
+            if dpctl.get_current_device_type() == dpctl.device_type.gpu:
+                return dispatcher_registry[
+                    hardware_registry[TargetDispatcher.target_offload_gpu]
+                ]
+            elif dpctl.get_current_device_type() == dpctl.device_type.cpu:
+                return dispatcher_registry[
+                    hardware_registry[TargetDispatcher.target_offload_cpu]
+                ]
 
-        if target is None:
-            target = "cpu"
-
-        return registry.dispatcher_registry[target]
+        return dispatcher_registry[hardware_registry[target]]
 
     def _reduce_states(self):
         return dict(

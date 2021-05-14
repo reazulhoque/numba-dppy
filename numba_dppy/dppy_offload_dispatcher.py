@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from numba.core import dispatcher, compiler
-from numba.core.registry import cpu_target, dispatcher_registry
+from numba.core.registry import cpu_target
+from numba.core.extending_hardware import dispatcher_registry, hardware_registry
 import numba_dppy.config as dppy_config
+from numba_dppy.target import SyclDevice
 
 
 class DppyOffloadDispatcher(dispatcher.Dispatcher):
@@ -59,6 +61,12 @@ class DppyOffloadDispatcher(dispatcher.Dispatcher):
                 pipeline_class=pipeline_class,
             )
 
+if '__dppy_offload_gpu__' not in hardware_registry:
+    hardware_registry['__dppy_offload_gpu__'] = SyclDevice
+if '__dppy_offload_cpu__' not in hardware_registry:
+    hardware_registry['__dppy_offload_cpu__'] = SyclDevice
 
-dispatcher_registry["__dppy_offload_gpu__"] = DppyOffloadDispatcher
-dispatcher_registry["__dppy_offload_cpu__"] = DppyOffloadDispatcher
+if hardware_registry["__dppy_offload_gpu__"] not in dispatcher_registry:
+    dispatcher_registry[hardware_registry["__dppy_offload_gpu__"]] = DppyOffloadDispatcher
+if hardware_registry["__dppy_offload_cpu__"] not in dispatcher_registry:
+    dispatcher_registry[hardware_registry["__dppy_offload_cpu__"]] = DppyOffloadDispatcher
