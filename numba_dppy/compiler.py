@@ -593,17 +593,14 @@ class JitDPPYKernel(DPPYKernelBase):
         # we were previously using the _env_ptr of the device_env, the sycl_queue
         # should be sufficient to cache the compiled kernel for now, but we should
         # use the device type to cache such kernels
-        # key_definitions = (self.sycl_queue, argtypes)
-        key_definitions = argtypes
-        result = self.definitions.get(key_definitions)
-        if result:
-            sycl_ctx, kernel = result
+        key_definitions = (argtypes, self.sycl_queue.sycl_context.addressof_ref())
+        kernel = self.definitions.get(key_definitions)
 
-        if sycl_ctx and sycl_ctx == self.sycl_queue.sycl_context:
+        if kernel != None:
             return kernel
         else:
             kernel = compile_kernel(
                 self.sycl_queue, self.py_func, argtypes, self.access_types
             )
-            self.definitions[key_definitions] = (self.sycl_queue.sycl_context, kernel)
+            self.definitions[key_definitions] = kernel
         return kernel
